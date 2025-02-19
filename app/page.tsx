@@ -1,3 +1,6 @@
+'use client'
+
+import { CldImage } from "next-cloudinary";
 import Image from "next/image";
 
 export default function Home() {
@@ -16,13 +19,15 @@ export default function Home() {
             rel="noopener noreferrer"
           >
             By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
+            <CldImage
+              src="cld-sample-5" 
+              width="500"
+              height="500"
+              alt="sample"
+              crop={{
+                type: 'auto',
+                source: true
+              }}
             />
           </a>
         </div>
