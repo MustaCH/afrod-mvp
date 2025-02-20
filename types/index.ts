@@ -1,5 +1,6 @@
 //User
 
+
 export type IUser = {
     name: string,
     lastname: string,
@@ -22,3 +23,13 @@ export enum ISubscriptionTier {
     SILVER = 'SILVER',
     GOLD = 'GOLD',
   }
+
+//Video
+
+export type IVideo = {
+    title: string,
+    description?: string,
+    src: string,
+    date: Date,
+    score?: number,
+}
