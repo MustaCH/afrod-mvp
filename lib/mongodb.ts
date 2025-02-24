@@ -1,16 +1,16 @@
-import { MongoClient, MongoClientOptions } from 'mongodb';
+import { MongoClient, MongoClientOptions } from "mongodb";
 
-const uri = process.env.MONGODB_URI as string;
+const uri = process.env.NESXT_MONGODB_URI as string;
 const options: MongoClientOptions = {};
 
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
-if (!process.env.MONGODB_URI) {
-  throw new Error('Please add your MongoDB URI to .env.local');
+if (!process.env.NESXT_MONGODB_URI) {
+  throw new Error("Please add your MongoDB URI to .env.local");
 }
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NEXT_ENVIROMENT === "development") {
   // En desarrollo, usa una variable global para evitar múltiples conexiones.
   if (!(global as any)._mongoClientPromise) {
     client = new MongoClient(uri, options);
