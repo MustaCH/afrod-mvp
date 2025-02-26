@@ -1,12 +1,12 @@
 import { MongoClient, MongoClientOptions } from "mongodb";
 
-const uri = process.env.NESXT_MONGODB_URI as string;
+const uri = process.env.NEXT_MONGODB_URI as string;
 const options: MongoClientOptions = {};
 
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
-if (!process.env.NESXT_MONGODB_URI) {
+if (!process.env.NEXT_MONGODB_URI) {
   throw new Error("Please add your MongoDB URI to .env.local");
 }
 

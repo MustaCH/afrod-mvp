@@ -1,6 +1,7 @@
 //User
 
-export type IUser = {
+export interface IUser {
+  _id: string;
   name: string;
   lastname: string;
   username: string;
@@ -35,12 +36,7 @@ export type IVideo = {
 
 //AdminUser
 
-export type IAdminUser = {
-  name: string;
-  lastname: string;
-  username: string;
-  email: string;
-  password: string;
+export interface IAdminUser extends IUser {
   role: IAdminRole;
 };
 
