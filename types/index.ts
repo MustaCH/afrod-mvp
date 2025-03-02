@@ -1,3 +1,5 @@
+import { ObjectId } from "mongodb";
+
 //User
 
 export interface IUser {
@@ -8,7 +10,7 @@ export interface IUser {
   email: string;
   password: string;
   subscription?: ISubscriptionType;
-};
+}
 
 //Subscription
 
@@ -27,6 +29,7 @@ export enum ISubscriptionTier {
 //Video
 
 export type IVideo = {
+  _id: ObjectId;
   title: string;
   description?: string;
   src: string;
@@ -38,7 +41,7 @@ export type IVideo = {
 
 export interface IAdminUser extends IUser {
   role: IAdminRole;
-};
+}
 
 export enum IAdminRole {
   ADMIN = "ADMIN",
