@@ -35,8 +35,20 @@ export type IVideo = {
   description?: string;
   src: string;
   date: Date;
+  category: string;
   score?: number;
+  actors?: Array<IActor>;
 };
+
+//Actor
+
+export interface IActor {
+  _id: string;
+  name: string;
+  lastname: string;
+  nickname: string;
+  social: Array<ISocialMedia>;
+}
 
 //AdminUser
 
@@ -48,3 +60,10 @@ export enum IAdminRole {
   ADMIN = "ADMIN",
   SUPERADMIN = "SUPERADMIN",
 }
+
+//Other types
+
+export type ISocialMedia = {
+  name?: string;
+  url?: string;
+};

@@ -10,6 +10,7 @@ const videoSchema: Schema = new Schema<IVideoDocument>({
   src: { type: String, required: true, unique: true },
   date: { type: Date, required: true },
   score: { type: Number, required: false },
+  actors: { type: Array, required: true },
 });
 
 export default mongoose.models.Video ||
