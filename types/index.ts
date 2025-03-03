@@ -31,6 +31,7 @@ export enum ISubscriptionTier {
 export type IVideo = {
   _id: ObjectId;
   title: string;
+  thumbnail: string;
   description?: string;
   src: string;
   date: Date;
