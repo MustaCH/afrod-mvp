@@ -35,7 +35,7 @@ export type IVideo = {
   description?: string;
   src: string;
   date: Date;
-  category: string;
+  category: Array<string>;
   score?: number;
   actors?: Array<IActor>;
 };

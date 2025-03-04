@@ -87,9 +87,6 @@ export default async function handler(
           const title = Array.isArray(fields.title)
             ? fields.title[0]
             : fields.title || "";
-          const thumbnailFile = Array.isArray(files.thumbnail)
-            ? files.thumbnail[0]
-            : files.thumbnail;
           const description = Array.isArray(fields.description)
             ? fields.description[0]
             : fields.description || "";
