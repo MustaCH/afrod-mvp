@@ -54,6 +54,12 @@ export default async function handler(
 
       case "POST":
         const newDocument = req.body;
+
+        // Verifica que social sea un array o inicialízalo vacío
+        if (!Array.isArray(newDocument.social)) {
+          newDocument.social = [];
+        }
+
         const createResult = await collection.insertOne(newDocument);
         res.status(201).json({
           data: { ...newDocument, id: createResult.insertedId.toString() },

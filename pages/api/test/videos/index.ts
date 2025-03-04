@@ -17,7 +17,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3001");
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, DELETE, OPTIONS"
@@ -80,6 +80,9 @@ export default async function handler(
             return res.status(500).json({ error: "Error al subir el archivo" });
           }
 
+          console.log("Campos recibidos:", fields);
+          console.log("Archivos recibidos:", files);
+
           // Asegurar que los valores sean strings o fechas correctas
           const title = Array.isArray(fields.title)
             ? fields.title[0]
@@ -87,7 +90,6 @@ export default async function handler(
           const thumbnailFile = Array.isArray(files.thumbnail)
             ? files.thumbnail[0]
             : files.thumbnail;
-
           const description = Array.isArray(fields.description)
             ? fields.description[0]
             : fields.description || "";
@@ -99,6 +101,11 @@ export default async function handler(
               ? new Date(dateString)
               : new Date();
           const file = Array.isArray(files.file) ? files.file[0] : files.file;
+          const actors = Array.isArray(fields.actors)
+            ? fields.actors
+            : fields.actors
+            ? [fields.actors]
+            : [];
 
           if (!file) {
             return res
@@ -129,6 +136,7 @@ export default async function handler(
               src: uploadResult.secure_url,
               thumbnail: thumbnailUrl,
               date: new Date(date),
+              actors,
               score: 0,
             };
 
