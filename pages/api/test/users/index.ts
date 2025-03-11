@@ -1,6 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import clientPromise from "../../../../lib/mongodb";
 import { ObjectId } from "mongodb";
+import formidable from "formidable";
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 export default async function handler(
   req: NextApiRequest,
@@ -53,27 +60,98 @@ export default async function handler(
         break;
 
       case "POST":
-        const newDocument = req.body;
-        const createResult = await collection.insertOne(newDocument);
-        res.status(201).json({
-          data: { ...newDocument, id: createResult.insertedId.toString() },
+        const formPostUser = formidable();
+        formPostUser.parse(req, async (err, fields, files) => {
+          if (err) {
+            console.error("Error parsing form:", err);
+            return res
+              .status(500)
+              .json({ error: "Error al procesar la solicitud" });
+          }
+
+          const newDocument = {
+            name: Array.isArray(fields.name)
+              ? fields.name[0]
+              : fields.name || "",
+            lastname: Array.isArray(fields.lastname)
+              ? fields.lastname[0]
+              : fields.lastname || "",
+            username: Array.isArray(fields.username)
+              ? fields.username[0]
+              : fields.username || "",
+            email: Array.isArray(fields.email)
+              ? fields.email[0]
+              : fields.email || "",
+            password: Array.isArray(fields.password)
+              ? fields.password[0]
+              : fields.password || "",
+            subscription: Array.isArray(fields.subscription)
+              ? fields.subscription[0]
+              : fields.subscription || "",
+            role: Array.isArray(fields.role)
+              ? fields.role[0]
+              : fields.role || "user",
+          };
+
+          try {
+            const createResult = await collection.insertOne(newDocument);
+            res.status(201).json({
+              data: { ...newDocument, id: createResult.insertedId.toString() },
+            });
+          } catch (e) {
+            console.error(e);
+            res.status(500).json({ error: "Error al crear el usuario" });
+          }
         });
         break;
 
       case "PUT":
-        const { id, ...updateData } = req.body;
-        await collection.updateOne(
-          { _id: new ObjectId(id) },
-          { $set: updateData }
-        );
-        const updatedDocument = await collection.findOne({
-          _id: new ObjectId(id),
-        });
-        if (!updatedDocument) {
-          return res.status(404).json({ error: "Document not found" });
-        }
-        res.status(200).json({
-          data: { ...updatedDocument, id: updatedDocument._id.toString() },
+        const formPutUser = formidable();
+        formPutUser.parse(req, async (err, fields, files) => {
+          if (err) {
+            console.error("Error parsing form:", err);
+            return res
+              .status(500)
+              .json({ error: "Error al procesar la solicitud" });
+          }
+
+          const id = Array.isArray(fields.id) ? fields.id[0] : fields.id;
+          const updateData = {
+            name: Array.isArray(fields.name) ? fields.name[0] : fields.name,
+            lastname: Array.isArray(fields.lastname)
+              ? fields.lastname[0]
+              : fields.lastname,
+            username: Array.isArray(fields.username)
+              ? fields.username[0]
+              : fields.username,
+            email: Array.isArray(fields.email) ? fields.email[0] : fields.email,
+            password: Array.isArray(fields.password)
+              ? fields.password[0]
+              : fields.password || "",
+            subscription: Array.isArray(fields.subscription)
+              ? fields.subscription[0]
+              : fields.subscription || "",
+            role: Array.isArray(fields.role) ? fields.role[0] : fields.role,
+          };
+
+          try {
+            await collection.updateOne(
+              { _id: new ObjectId(id) },
+              { $set: updateData }
+            );
+            const updatedDocument = await collection.findOne({
+              _id: new ObjectId(id),
+            });
+            if (!updatedDocument) {
+              return res.status(404).json({ error: "Usuario no encontrado" });
+            }
+            res.status(200).json({
+              data: { ...updatedDocument, id: updatedDocument._id.toString() },
+            });
+          } catch (e) {
+            console.error(e);
+            res.status(500).json({ error: "Error al actualizar el usuario" });
+          }
         });
         break;
 
