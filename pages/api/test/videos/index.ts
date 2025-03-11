@@ -76,20 +76,42 @@ export default async function handler(
 
         form.parse(req, async (err, fields, files) => {
           if (err) {
-            console.error("Error parsing form:", err);
-            return res
-              .status(500)
-              .json({ error: "Error al procesar el formulario" });
+            console.error("Error subiendo archivo:", err);
+            return res.status(500).json({ error: "Error al subir el archivo" });
           }
 
-          // Validar campos y archivo
+          console.log("Campos recibidos:", fields);
+          console.log("Archivos recibidos:", files);
+
+          // Asegurar que los valores sean strings o fechas correctas
+          const title = Array.isArray(fields.title)
+            ? fields.title[0]
+            : fields.title || "";
+          const description = Array.isArray(fields.description)
+            ? fields.description[0]
+            : fields.description || "";
+          const dateString = Array.isArray(fields.date)
+            ? fields.date[0]
+            : fields.date;
+          const date =
+            dateString && !isNaN(Date.parse(dateString))
+              ? new Date(dateString)
+              : new Date();
           const file = Array.isArray(files.file) ? files.file[0] : files.file;
-          if (!file?.filepath) {
-            return res.status(400).json({ error: "Archivo no subido" });
+          const actors = Array.isArray(fields.actors)
+            ? fields.actors
+            : fields.actors
+            ? [fields.actors]
+            : [];
+
+          if (!file) {
+            return res
+              .status(400)
+              .json({ error: "No se ha subido un archivo" });
           }
 
           try {
-            // Subir a Cloudinary
+            // 🔹 Subir a Cloudinary
             const uploadResult = await cloudinary.uploader.upload(
               file.filepath,
               {
@@ -98,37 +120,32 @@ export default async function handler(
               }
             );
 
-            // Crear objeto para MongoDB
+            const videoPublicId = uploadResult.public_id;
+            const thumbnailUrl = `https://res.cloudinary.com/dqe1pmyf8/video/upload/w_300,h_200,c_fill/so_2/${videoPublicId}.jpg`;
+
+            // 🔹 Eliminar archivo temporal de forma segura
+            fs.unlink(file.filepath, () => {});
+
+            // 🔹 Guardar en MongoDB
             const newVideo = {
-              title: fields.title?.[0] || "",
-              description: fields.description?.[0] || "",
+              title,
+              description,
               src: uploadResult.secure_url,
-              thumbnail: `https://res.cloudinary.com/dqe1pmyf8/video/upload/w_300,h_200,c_fill/so_2/${uploadResult.public_id}.jpg`,
-              date: new Date(fields.date?.[0] || Date.now()),
-              actors: fields.actors
-                ? Array.isArray(fields.actors)
-                  ? fields.actors
-                  : [fields.actors]
-                : [],
+              thumbnail: thumbnailUrl,
+              date: new Date(date),
+              actors,
               score: 0,
             };
 
-            // Insertar en MongoDB
             const createResult = await collection.insertOne(newVideo);
-            const responseData = {
-              id: createResult.insertedId.toString(),
-              ...newVideo,
-              date: newVideo.date.toISOString(), // Convertir a string para React-Admin
-            };
-
-            // Eliminar archivo temporal
-            fs.unlink(file.filepath, () => {});
-
-            // Enviar respuesta
-            return res.status(201).json({ data: responseData }); // 🔹 ¡Usar return aquí!
+            res.status(201).json({
+              data: { ...newVideo, id: createResult.insertedId.toString() },
+            });
           } catch (uploadError) {
-            console.error("Error en el proceso:", uploadError);
-            return res.status(500).json({ error: "Error al subir el video" });
+            console.error("Error subiendo a Cloudinary:", uploadError);
+            res
+              .status(500)
+              .json({ error: "Error al subir el video a Cloudinary" });
           }
         });
         break;
