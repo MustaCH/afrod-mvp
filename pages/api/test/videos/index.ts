@@ -72,7 +72,12 @@ export default async function handler(
         break;
 
       case "POST":
-        const form = formidable({ keepExtensions: true, multiples: false });
+        const form = formidable({
+          keepExtensions: true,
+          multiples: false,
+          maxFileSize: 50 * 1024 * 1024,
+          maxFieldsSize: 10 * 1024 * 1024,
+        });
 
         form.parse(req, async (err, fields, files) => {
           if (err) {
