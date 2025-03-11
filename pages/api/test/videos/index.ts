@@ -138,8 +138,14 @@ export default async function handler(
             };
 
             const createResult = await collection.insertOne(newVideo);
+
+            const videoWithId = {
+              ...newVideo,
+              id: createResult.insertedId.toString(), // 🔹 Incluir el id aquí
+            };
+
             res.status(201).json({
-              data: { ...newVideo, id: createResult.insertedId.toString() },
+              data: videoWithId,
             });
           } catch (uploadError) {
             console.error("Error subiendo a Cloudinary:", uploadError);
