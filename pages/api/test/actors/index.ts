@@ -1,6 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import clientPromise from "../../../../lib/mongodb";
 import { ObjectId } from "mongodb";
+import formidable from "formidable";
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 export default async function handler(
   req: NextApiRequest,
@@ -45,7 +52,7 @@ export default async function handler(
 
         res.status(200).json({
           data: documents.map((doc) => ({
-            id: doc._id.toString(), // Convertir _id a id
+            id: doc._id.toString(),
             ...doc,
           })),
           total,
@@ -53,33 +60,85 @@ export default async function handler(
         break;
 
       case "POST":
-        const newDocument = req.body;
+        const formPostActor = formidable();
+        formPostActor.parse(req, async (err, fields, files) => {
+          if (err) {
+            console.error("Error parsing form:", err);
+            return res
+              .status(500)
+              .json({ error: "Error al procesar la solicitud" });
+          }
+          const newDocument = {
+            name: Array.isArray(fields.name)
+              ? fields.name[0]
+              : fields.name || "",
+            lastname: Array.isArray(fields.lastname)
+              ? fields.lastname[0]
+              : fields.lastname || "",
+            nickname: Array.isArray(fields.nickname)
+              ? fields.nickname[0]
+              : fields.nickname || "",
+            social: Array.isArray(fields.social)
+              ? fields.social
+              : fields.social
+              ? [fields.social]
+              : [],
+          };
 
-        // Verifica que social sea un array o inicialízalo vacío
-        if (!Array.isArray(newDocument.social)) {
-          newDocument.social = [];
-        }
+          if (!Array.isArray(newDocument.social)) {
+            newDocument.social = [];
+          }
 
-        const createResult = await collection.insertOne(newDocument);
-        res.status(201).json({
-          data: { ...newDocument, id: createResult.insertedId.toString() },
+          try {
+            const createResult = await collection.insertOne(newDocument);
+            res.status(201).json({
+              data: { ...newDocument, id: createResult.insertedId.toString() },
+            });
+          } catch (e) {
+            console.error(e);
+            res.status(500).json({ error: "Error al crear el actor" });
+          }
         });
         break;
 
       case "PUT":
-        const { id, ...updateData } = req.body;
-        await collection.updateOne(
-          { _id: new ObjectId(id) },
-          { $set: updateData }
-        );
-        const updatedDocument = await collection.findOne({
-          _id: new ObjectId(id),
-        });
-        if (!updatedDocument) {
-          return res.status(404).json({ error: "Document not found" });
-        }
-        res.status(200).json({
-          data: { ...updatedDocument, id: updatedDocument._id.toString() },
+        const formPutActor = formidable();
+        formPutActor.parse(req, async (err, fields, files) => {
+          if (err) {
+            console.error("Error parsing form:", err);
+            return res
+              .status(500)
+              .json({ error: "Error al procesar la solicitud" });
+          }
+
+          const id = Array.isArray(fields.id) ? fields.id[0] : fields.id;
+          const updateData = {
+            name: Array.isArray(fields.name) ? fields.name[0] : fields.name,
+            lastname: Array.isArray(fields.lastname)
+              ? fields.lastname[0]
+              : fields.lastname,
+            nickname: Array.isArray(fields.nickname),
+            social: Array.isArray(fields.social) ? fields.social : [],
+          };
+
+          try {
+            await collection.updateOne(
+              { _id: new ObjectId(id) },
+              { $set: updateData }
+            );
+            const updatedDocument = await collection.findOne({
+              _id: new ObjectId(id),
+            });
+            if (!updatedDocument) {
+              return res.status(404).json({ error: "Actor no encontrado" });
+            }
+            res.status(200).json({
+              data: { ...updatedDocument, id: updatedDocument._id.toString() },
+            });
+          } catch (e) {
+            console.error(e);
+            res.status(500).json({ error: "Error al actualizar el actor" });
+          }
         });
         break;
 
