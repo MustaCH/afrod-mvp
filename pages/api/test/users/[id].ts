@@ -42,16 +42,20 @@ export default async function handler(
           .json({ data: { ...user, id: user._id.toString() } });
 
       case "PUT":
-        const { _id, ...updateData } = req.body; // 🔥 Filtra _id
+        const { _id, ...updateData } = req.body;
 
         await collection.updateOne(
           { _id: new ObjectId(id as string) },
           { $set: updateData }
         );
 
-        return res
-          .status(200)
-          .json({ message: "Usuario actualizado correctamente" });
+        const updatedDoc = await collection.findOne({
+          _id: new ObjectId(id as string),
+        });
+
+        return res.status(200).json({
+          data: { ...updatedDoc, id: updatedDoc?._id.toString() },
+        });
 
       case "DELETE":
         await collection.deleteOne({ _id: new ObjectId(id as string) });
