@@ -57,10 +57,6 @@ export default async function handler(
           data: { ...updatedDoc, id: updatedDoc?._id.toString() },
         });
 
-        return res
-          .status(200)
-          .json({ message: "Video actualizado correctamente" });
-
       case "DELETE":
         await collection.deleteOne({ _id: new ObjectId(id as string) });
         return res
