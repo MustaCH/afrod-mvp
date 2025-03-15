@@ -95,6 +95,9 @@ export default async function handler(
           const description = Array.isArray(fields.description)
             ? fields.description[0]
             : fields.description || "";
+          const category = Array.isArray(fields.category)
+            ? fields.category[0]
+            : fields.category || "";
           const dateString = Array.isArray(fields.date)
             ? fields.date[0]
             : fields.date;
@@ -137,6 +140,7 @@ export default async function handler(
               description,
               src: uploadResult.secure_url,
               thumbnail: thumbnailUrl,
+              category: category,
               date: new Date(date),
               actors,
               score: 0,
