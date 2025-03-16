@@ -1,3 +1,0 @@
-name = "afrod-mvp"
-main = "./.vercel/output/static/index.js"
-compatibility_date = "2024-05-20"
