@@ -1,7 +1,9 @@
-'use client'
+"use client";
 
 import { CldImage } from "next-cloudinary";
 import Image from "next/image";
+
+export const runtime = "edge";
 
 export default function Home() {
   return (
@@ -20,13 +22,13 @@ export default function Home() {
           >
             By{" "}
             <CldImage
-              src="cld-sample-5" 
+              src="cld-sample-5"
               width="500"
               height="500"
               alt="sample"
               crop={{
-                type: 'auto',
-                source: true
+                type: "auto",
+                source: true,
               }}
             />
           </a>
