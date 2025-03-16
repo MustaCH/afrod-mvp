@@ -21,6 +21,7 @@
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@cloudflare/next-on-pages": "^1.13.10",
     "@types/cors": "^2.8.17",
     "@types/mongoose": "^5.11.96",
     "@types/node": "^20",
